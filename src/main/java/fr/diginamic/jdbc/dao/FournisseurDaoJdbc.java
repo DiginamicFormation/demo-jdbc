@@ -10,8 +10,15 @@ import java.util.List;
 import fr.diginamic.entites.Fournisseur;
 import fr.diginamic.jdbc.ConnectionMgr;
 
+/**
+ * Implémentation JDBC de {@link FournisseurDao}
+ * 
+ * @author DIGINAMIC
+ *
+ */
 public class FournisseurDaoJdbc implements FournisseurDao {
 
+	@Override
 	public void insert(Fournisseur fournisseur) {
 		Connection conn = null;
 		Statement stat = null;
@@ -86,6 +93,45 @@ public class FournisseurDaoJdbc implements FournisseurDao {
 	}
 
 	@Override
+	public Fournisseur extraireById(int id) {
+		Fournisseur selection = null;
+
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet res = null;
+		try {
+			conn = ConnectionMgr.getConnection();
+			stat = conn.createStatement();
+
+			res = stat.executeQuery("SELECT * FROM FOURNISSEUR WHERE id=" + id);
+
+			if (res.next()) {
+				String nom = res.getString("NOM");
+				selection = new Fournisseur(id, nom);
+			}
+
+		} catch (SQLException e) {
+			System.err.println(e.getMessage());
+			throw new RuntimeException("Une exception grave s'est produite. L'application va s'arrêter.");
+		} finally {
+			try {
+				if (res != null) {
+					res.close();
+				}
+				if (stat != null) {
+					stat.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+		return selection;
+	}
+
+	@Override
 	public int update(String ancienNom, String nouveauNom) {
 		Connection conn = null;
 		Statement stat = null;
@@ -128,7 +174,7 @@ public class FournisseurDaoJdbc implements FournisseurDao {
 			conn = ConnectionMgr.getConnection();
 			stat = conn.createStatement();
 
-			int nb = stat.executeUpdate("DELETE FROM FOURNISSEUR WHERE NOM='La Maison des Peintures'");
+			int nb = stat.executeUpdate("DELETE FROM FOURNISSEUR WHERE ID=" + fournisseur.getId());
 			if (nb > 0) {
 				return true;
 			}

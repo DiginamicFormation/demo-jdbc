@@ -20,6 +20,13 @@ public interface FournisseurDao {
 	List<Fournisseur> extraire();
 
 	/**
+	 * Extrait la fournisseur dont l'id est passé en paramètre
+	 * 
+	 * @return {@link Fournisseur}
+	 */
+	Fournisseur extraireById(int id);
+
+	/**
 	 * Insère un nouveau fournisseur
 	 * 
 	 * @param fournisseur nv fournisseur

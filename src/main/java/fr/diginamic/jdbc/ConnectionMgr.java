@@ -1,5 +1,6 @@
 package fr.diginamic.jdbc;
 
+import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -9,24 +10,23 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.mariadb.jdbc.Driver;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 /**
  * Cette classe fournit une méthode qui retourne une Connection à la base de
- * données. IMPORTANT: les paramètres d'accès à la base de données sont dans le
- * fichier database.xml
+ * données. Un pool de connexions permet de gérer les connexions à la base de
+ * données, ce qui garanit de biens meilleures performances car les connexions
+ * sont ouvertes à l'avance dans le pool. Dès que vous en fermez une, une
+ * connexion est automatiquement réouverte dans le pool. IMPORTANT: les
+ * paramètres d'accès à la base de données sont dans le fichier database.xml.
  * 
- * @author RichardBONNAMY
+ * @author DIGINAMIC
  *
  */
 public class ConnectionMgr {
 
-	/** configuration XML */
-	private static Configuration configuration;
-	/** url */
-	private static String url;
-	/** user */
-	private static String user;
-	/** pwd */
-	private static String pwd;
+	/** Pool de connexions */
+	private static ComboPooledDataSource connPool;
 
 	/**
 	 * Retourne une connexion à la base de données
@@ -36,7 +36,7 @@ public class ConnectionMgr {
 	public static Connection getConnection() {
 
 		// On regarde si l'objet configuration est null ou pas
-		if (configuration == null) {
+		if (connPool == null) {
 
 			// S'il est null, on invoque la méthode ci-dessous pour charger la configuration
 			// du fichier database.xml ainsi que le driver JDBC
@@ -44,7 +44,7 @@ public class ConnectionMgr {
 		}
 
 		try {
-			return DriverManager.getConnection(url, user, pwd);
+			return connPool.getConnection();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -66,15 +66,29 @@ public class ConnectionMgr {
 		try {
 			// Chargement du fichier XML
 			Configurations configurations = new Configurations();
-			configuration = configurations.xml("database.xml");
+			Configuration configuration = configurations.xml("database.xml");
 
-			url = configuration.getString("database.url");
-			user = configuration.getString("database.user");
-			pwd = configuration.getString("database.pwd");
+			String driverClass = configuration.getString("database.driver");
+			String url = configuration.getString("database.url");
+			String user = configuration.getString("database.user");
+			String pwd = configuration.getString("database.pwd");
 
-		} catch (ConfigurationException e) {
+			connPool = new ComboPooledDataSource();
+			connPool.setDriverClass(driverClass); // loads the jdbc driver
+			connPool.setJdbcUrl(url);
+			connPool.setUser(user);
+			connPool.setPassword(pwd);
+			connPool.setMaxPoolSize(25);
+
+		} catch (ConfigurationException | PropertyVetoException e) {
 			throw new RuntimeException(e);
 		}
+	}
 
+	/**
+	 * Ferme le pool de connexions
+	 */
+	public static void close() {
+		connPool.close();
 	}
 }
