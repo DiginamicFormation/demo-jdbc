@@ -22,7 +22,6 @@ public class TestDeleteAvecDao {
 
 		Fournisseur fournisseur = dao.extraireParNom("La Maison des Peintures");
 		dao.delete(fournisseur);
-
 	}
 
 }

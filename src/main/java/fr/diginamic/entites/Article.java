@@ -1,11 +1,27 @@
 package fr.diginamic.entites;
 
+/**
+ * Représente un article
+ * 
+ * @author DIGINAMIC
+ *
+ */
 public class Article {
 
+	/** identifiant */
 	private int id;
+	/** désignation */
 	private String designation;
+	/** référence */
 	private String reference;
 
+	/**
+	 * Constructeur
+	 * 
+	 * @param id          identifiant
+	 * @param designation désignation
+	 * @param reference   référence
+	 */
 	public Article(int id, String designation, String reference) {
 		super();
 		this.id = id;
