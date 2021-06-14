@@ -3,6 +3,7 @@ package fr.diginamic.jdbc;
 import fr.diginamic.entites.Fournisseur;
 import fr.diginamic.jdbc.dao.FournisseurDao;
 import fr.diginamic.jdbc.dao.FournisseurDaoJdbc;
+import fr.diginamic.jdbc.utils.ConnectionMgr;
 
 public class TestInsertion {
 

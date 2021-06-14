@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fr.diginamic.entites.Fournisseur;
-import fr.diginamic.jdbc.ConnectionMgr;
+import fr.diginamic.jdbc.utils.ConnectionMgr;
 
 /**
  * Implémentation JDBC de {@link FournisseurDao}

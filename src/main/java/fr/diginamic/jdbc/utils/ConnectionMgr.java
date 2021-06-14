@@ -1,4 +1,4 @@
-package fr.diginamic.jdbc;
+package fr.diginamic.jdbc.utils;
 
 import java.beans.PropertyVetoException;
 import java.sql.Connection;
@@ -11,6 +11,8 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.mariadb.jdbc.Driver;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import fr.diginamic.jdbc.exception.TechnicalException;
 
 /**
  * Cette classe fournit une méthode qui retourne une Connection à la base de
@@ -46,7 +48,7 @@ public class ConnectionMgr {
 		try {
 			return connPool.getConnection();
 		} catch (SQLException e) {
-			throw new RuntimeException(e);
+			throw new TechnicalException("Impossible d'ouvrir une connexion à la base de données", e);
 		}
 	}
 
@@ -80,8 +82,10 @@ public class ConnectionMgr {
 			connPool.setPassword(pwd);
 			connPool.setMaxPoolSize(25);
 
-		} catch (ConfigurationException | PropertyVetoException e) {
-			throw new RuntimeException(e);
+		} catch (ConfigurationException e) {
+			throw new TechnicalException("Impossible de lire la configuration de l'application", e);
+		} catch (PropertyVetoException e) {
+			throw new TechnicalException("Impossible de créer le pool de connexions", e);
 		}
 	}
 
